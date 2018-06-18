@@ -8,11 +8,13 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableType;
+import com.facebook.react.bridge.Promise;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import io.smooch.core.Smooch;
+import io.smooch.core.SmoochCallback;
 import io.smooch.core.User;
 import io.smooch.ui.ConversationActivity;
 
@@ -27,13 +29,35 @@ public class ReactNativeSmooch extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void login(String userId, String jwt) {
-        Smooch.login(userId, jwt);
+    public void login(String userId, String jwt, final Promise promise) {
+        Smooch.login(userId, jwt, new SmoochCallback() {
+            @Override
+            public void run(Response response) {
+                if (promise != null) {
+                    if (response.getError() != null) {
+                        promise.reject("" + response.getStatus(), response.getError());
+                        return;
+                    }
+
+                    promise.resolve(null);
+                }
+            }
+        });
     }
 
     @ReactMethod
-    public void logout(String userId, String jwt) {
-        Smooch.logout();
+    public void logout(final Promise promise) {
+        Smooch.logout(new SmoochCallback() {
+            @Override
+            public void run(Response response) {
+                if (response.getError() != null) {
+                    promise.reject("" + response.getStatus(), response.getError());
+                    return;
+                }
+
+                promise.resolve(null);
+            }
+        });
     }
 
     @ReactMethod
@@ -42,8 +66,9 @@ public class ReactNativeSmooch extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void track(String event) {
-        Smooch.track(event);
+    public void getUnreadCount(Promise promise) {
+        int unreadCount = Smooch.getConversation().getUnreadCount();
+        promise.resolve(unreadCount);
     }
 
     @ReactMethod
@@ -84,6 +109,5 @@ public class ReactNativeSmooch extends ReactContextBaseJavaModule {
 
         return userProperties;
     }
-
 
 }
