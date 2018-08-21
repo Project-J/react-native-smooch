@@ -13,6 +13,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/smooch/react-native-smooch" }
   s.source_files = 'ios/**/*.{h,m}'
   s.platform     = :ios, "8.0"
-  s.dependency 'Smooch', '6.7.2'
+  s.dependency 'Smooch', '6.10.2'
   s.dependency 'React'
 end
